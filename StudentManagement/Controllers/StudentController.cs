@@ -90,5 +90,19 @@ namespace StudentManagement.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> SearchApi([FromQuery] StudentSearchFilterDto filter)
+        {
+            try
+            {
+                var data = await _studentService.SearchStudentsAsync(filter);
+                return Json(new { success = true, data = data });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
     }
 }

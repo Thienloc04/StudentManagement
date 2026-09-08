@@ -26,7 +26,7 @@ $(document).ready(function () {
                         <td>${item.studentNo}</td>
                         <td>${item.fullName}</td>
                         <td>${item.gender}</td>
-                        <td>${item.currentClass}</td>
+                        <td>${item.currentClassName}</td>
                         <td>${item.statusName}</td>
                         <td>
                             <button class="btn btn-warning btn-sm btn-edit" data-id="${item.id}">Sửa</button>
@@ -179,6 +179,70 @@ $(document).ready(function () {
             }
         });
     });
+
+    // Hàm tìm kiếm dữ liệu
+    function searchStudents() {
+        var filter = {
+            studentName: $('#searchName').val(),
+            classId: $('#searchClassId').val(),
+            academicRank: $('#searchRank').val()
+        }
+
+        $.ajax({
+            url: '/Student/SearchApi',
+            type: 'GET',
+            data: filter,
+            success: function (response) {
+                if (response.success) {
+                    var tbody = $('#studentTableBody');
+                    tbody.empty();
+
+                    if (response.data.length === 0) {
+                        tbody.append('<tr><td colspan="7" class="text-center">Không tìm thấy học sinh phù hợp</td></tr>');
+                        return;
+                    }
+
+                    $.each(response.data, function (index, item) {
+                        var rankBadge = '';
+                        if (item.academicRank === 'Giỏi') rankBadge = '<span class="badge bg-success">Giỏi</span>';
+                        else if (item.academicRank === 'Khá') rankBadge = '<span class="badge bg-info">Khá</span>';
+                        else if (item.academicRank === 'Trung bình') rankBadge = '<span class="badge bg-warning">Trung bình</span>';
+                        else rankBadge = '<span class="badge bg-danger">Yếu</span>';
+
+                        var row = `<tr>
+                            <td>${item.studentNo}</td>
+                            <td>${item.fullName}</td>
+                            <td>${item.genderName}</td>
+                            <td>${item.className}</td>
+                            <td<strong>${item.gpa}</strong></td>
+                            <td>${rankBadge}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm btn-edit" data-id="${item.studentId}">Sửa</button>
+                                <button class="btn btn-danger btn-sm btn-delete" data-id="${item.studentId}">Xóa</button>
+
+                            </td>
+                        </tr>`;
+
+                        tbody.append(row);
+
+                    });
+                }
+            }
+        });
+    }
+
+    // Bắt sự kiện click nút Tìm kiếm
+    $('#btnSearch').click(function () {
+        searchStudents();
+    });
+
+    // Bắt sự kiện Reset
+    $('#btnResetSearch').click(function () {
+        $('#searchName').val('');
+        $('#searchClassId').val('');
+        $('#searchRank').val('');
+        searchStudents(); // Tự động load lại mặc định (Top 10 GPA cao nhất)
+    })
 
 });
 

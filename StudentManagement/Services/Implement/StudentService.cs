@@ -80,6 +80,11 @@ namespace StudentManagement.Services.Implement
             return result;
         }
 
+        public async Task<List<StudentSearchResultDto>> SearchStudentsAsync(StudentSearchFilterDto filter)
+        {
+            return await _studentRepository.SearchStudentsAsync(filter);
+        }
+
         public async Task UpdateStudentAsync(StudentUpdateViewModel model)
         {
             var student = await _studentRepository.GetStudentByIdAsync(model.Id);

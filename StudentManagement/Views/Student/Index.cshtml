@@ -10,6 +10,41 @@
     + Thêm học sinh
 </button>
 
+<div class="card mb-3">
+    <div class="card-header bg-primary text-white font-weight-bold">
+        <i class="fas fa-search"></i> Tra cứu & Tìm kiếm Học sinh
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <label>Tên học sinh:</label>
+                <input type="text" id="searchName" class="form-control" placeholder="Nhập tên..." />
+            </div>
+            <div class="col-md-3">
+                <label>Lớp học:</label>
+                <select id="searchClassId" class="form-control">
+                    <option value="">-- Tất cả các lớp --</option>
+                    <!-- Dữ liệu lớp học có thể load tự động từ DB -->
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label>Học lực:</label>
+                <select id="searchRank" class="form-control">
+                    <option value="">-- Tất cả học lực --</option>
+                    <option value="Giỏi">Giỏi (GPA >= 8.0)</option>
+                    <option value="Khá">Khá (6.5 <= GPA < 8.0)</option>
+                    <option value="Trung bình">Trung bình (5.0 <= GPA < 6.5)</option>
+                    <option value="Yếu">Yếu (GPA < 5.0)</option>
+                </select>
+            </div>
+            <div class="col-md-3 align-self-end">
+                <button id="btnSearch" class="btn btn-success"><i class="fas fa-search"></i> Tìm kiếm</button>
+                <button id="btnResetSearch" class="btn btn-secondary"><i class="fas fa-undo"></i> Làm mới</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <h2>Danh sách Học sinh</h2>
 
 <!-- Bảng HTML rỗng, chưa có dữ liệu -->

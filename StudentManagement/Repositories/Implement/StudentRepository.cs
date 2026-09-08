@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using StudentManagement.Data;
 using StudentManagement.Models.Entities;
+using StudentManagement.Models.ViewModels;
 using StudentManagement.Repositories.Interface;
 
 namespace StudentManagement.Repositories.Implement
@@ -42,6 +44,24 @@ namespace StudentManagement.Repositories.Implement
         {
             return await _context.Students.Include(s => s.StudentClasses)
                 .FirstOrDefaultAsync(s => s.Id == id);
+        }
+
+        public async Task<List<StudentSearchResultDto>> SearchStudentsAsync(StudentSearchFilterDto filter)
+        {
+            // Tạo các tham số cho Stored Procedure (Xử lý Null nếu user không nhập)
+            var pStudentName = new SqlParameter("@StudentName", (object?)filter.StudentName ?? DBNull.Value);
+            var pClassId = new SqlParameter("@ClassId", (object?)filter.ClassId ?? DBNull.Value);
+            var pAcademicRank = new SqlParameter("@AcademicRank", (object?)filter.AcademicRank ?? DBNull.Value);
+
+            // Gọi Stored Procedure sp_SearchStudents
+            // SqlQueryRaw<T> cho phép mapping trực tiếp kết quả trả về của 1 Stored Procedure SQL vào List Obj DTO
+            var result = await _context.Database
+                .SqlQueryRaw<StudentSearchResultDto>(
+                "EXEC sp_SearchStudents @StudentName, @ClassId, @AcademicRank",
+                pStudentName, pClassId, pAcademicRank)
+                .ToListAsync();
+
+            return result;
         }
 
         public async Task UpdateStudentAsync(Student student)

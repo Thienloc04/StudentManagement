@@ -9,5 +9,6 @@ namespace StudentManagement.Services.Interface
         Task<StudentUpdateViewModel> GetStudentForEditAsync(int id);
         Task UpdateStudentAsync(StudentUpdateViewModel model);
         Task DeleteStudentAsync(int id);
+        Task<List<StudentSearchResultDto>> SearchStudentsAsync(StudentSearchFilterDto filter);
     }
 }
