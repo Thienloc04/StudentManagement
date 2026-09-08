@@ -1,0 +1,140 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Danh sách học sinh";
+}
+
+<!-- Nút mở form -->
+<button type="button" class="btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#studentModal">
+    + Thêm học sinh
+</button>
+
+<h2>Danh sách Học sinh</h2>
+
+<!-- Bảng HTML rỗng, chưa có dữ liệu -->
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Mã HS</th>
+            <th>Họ tên</th>
+            <th>Giới tính</th>
+            <th>Lớp hiện tại</th>
+            <th>Trạng thái</th>
+            <th></th>
+
+        </tr>
+    </thead>
+    <tbody id="studentTableBody">
+        <!-- Dữ liệu được vẽ bằng jQuery ở đây -->
+        <tr>
+            <td colspan="5" class="text-center">Đang tải dữ liệu...</td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Form Modal ẩn -->
+<div class="modal fade" id="studentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm Học Sinh Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Đặt id cho từng thẻ input để lát jQuery lấy dữ liệu -->
+                <div class="mb-3">
+                    <label>Mã HS</label>
+                    <input type="text" id="txtStudentNo" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Họ và Tên</label>
+                    <input type="text" id="txtFullName" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Giới tính</label>
+                    <select id="ddlSex" class="form-select">
+                        <option value="true">Nam</option>
+                        <option value="false">Nữ</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label>Ngày sinh</label>
+                    <input type="date" id="txtDob" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Email</label>
+                    <input type="text" id="txtEmail" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>SĐT</label>
+                    <input type="tel" id="telPhone" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Địa chỉ</label>
+                    <input type="text" id="txtAddress" class="form-control" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-success" id="btnSaveStudent">Lưu lại</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form Modal cho Edit -->
+<div class="modal fade" id="studentEditModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sửa Thông Tin Học Sinh</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Đặt id cho từng thẻ input để lát jQuery lấy dữ liệu -->
+                <input type="hidden" id="txtEditId" />
+                <div class="mb-3">
+                    <label>Mã HS</label>
+                    <input type="text" id="txtEditStudentNo" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Họ và Tên</label>
+                    <input type="text" id="txtEditFullName" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Giới tính</label>
+                    <select id="ddlEditSex" class="form-select">
+                        <option value="true">Nam</option>
+                        <option value="false">Nữ</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label>Ngày sinh</label>
+                    <input type="date" id="txtEditDob" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Email</label>
+                    <input type="text" id="txtEditEmail" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>SĐT</label>
+                    <input type="tel" id="telEditPhone" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Địa chỉ</label>
+                    <input type="text" id="txtEditAddress" class="form-control" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-success" id="btnUpdateStudent">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Khai báo vùng viết Script, nó sẽ được đẩy xuống cuối trang Layout -->
+@section Scripts {
+    <script src="~/js/student.js"></script>
+}

@@ -2,8 +2,8 @@
 {
     public enum TypeEnum
     {
-        KiemTra15P = 1,
-        GiuaKy = 2,
-        CuoiKy = 3
+        Attendance = 1,
+        Midterm = 2,
+        Final = 3
     }
 }
