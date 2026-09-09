@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using StudentManagement.Data;
 using StudentManagement.Models.Entities;
@@ -46,22 +46,14 @@ namespace StudentManagement.Repositories.Implement
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 
-        public async Task<List<StudentSearchResultDto>> SearchStudentsAsync(StudentSearchFilterDto filter)
+        public async Task<IEnumerable<StudentSearchResultDto>> SearchStudentsWithSpAsync(StudentSearchFilterDto filter)
         {
-            // Tạo các tham số cho Stored Procedure (Xử lý Null nếu user không nhập)
-            var pStudentName = new SqlParameter("@StudentName", (object?)filter.StudentName ?? DBNull.Value);
+            var pKeyword = new SqlParameter("@Keyword", (object?)filter.Keyword ?? DBNull.Value);
             var pClassId = new SqlParameter("@ClassId", (object?)filter.ClassId ?? DBNull.Value);
-            var pAcademicRank = new SqlParameter("@AcademicRank", (object?)filter.AcademicRank ?? DBNull.Value);
-
-            // Gọi Stored Procedure sp_SearchStudents
-            // SqlQueryRaw<T> cho phép mapping trực tiếp kết quả trả về của 1 Stored Procedure SQL vào List Obj DTO
-            var result = await _context.Database
-                .SqlQueryRaw<StudentSearchResultDto>(
-                "EXEC sp_SearchStudents @StudentName, @ClassId, @AcademicRank",
-                pStudentName, pClassId, pAcademicRank)
+            var pRank = new SqlParameter("@AcademicPerformance", (object?)filter.AcademicPerformance ?? DBNull.Value);
+            return await _context.Database
+                .SqlQueryRaw<StudentSearchResultDto>("EXEC sp_SearchStudents @Keyword, @ClassId, @AcademicPerformance", pKeyword, pClassId, pRank)
                 .ToListAsync();
-
-            return result;
         }
 
         public async Task UpdateStudentAsync(Student student)

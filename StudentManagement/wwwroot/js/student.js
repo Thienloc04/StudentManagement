@@ -1,8 +1,10 @@
-﻿// Chờ cho HTML load xong mới chạy code
+// Chờ cho HTML load xong mới chạy code
 $(document).ready(function () {
 
     // Gọi hàm load dữ liệu ngay khi vào trang
-    loadStudentData();
+    //loadStudentData();
+    searchStudents();
+    loadClassDropdown();
 
     function loadStudentData() {
         $.ajax({
@@ -183,15 +185,16 @@ $(document).ready(function () {
     // Hàm tìm kiếm dữ liệu
     function searchStudents() {
         var filter = {
-            studentName: $('#searchName').val(),
+            keyword: $('#searchName').val().trim(),
             classId: $('#searchClassId').val(),
-            academicRank: $('#searchRank').val()
+            academicPerformance: $('#searchRank').val()
         }
 
         $.ajax({
-            url: '/Student/SearchApi',
+            url: '/Student/SearchStudentsApi',
             type: 'GET',
             data: filter,
+            dataType: 'json',
             success: function (response) {
                 if (response.success) {
                     var tbody = $('#studentTableBody');
@@ -202,19 +205,23 @@ $(document).ready(function () {
                         return;
                     }
 
+                    // Duyệt từng học sinh trả về từ Stored Procedure
                     $.each(response.data, function (index, item) {
                         var rankBadge = '';
-                        if (item.academicRank === 'Giỏi') rankBadge = '<span class="badge bg-success">Giỏi</span>';
-                        else if (item.academicRank === 'Khá') rankBadge = '<span class="badge bg-info">Khá</span>';
-                        else if (item.academicRank === 'Trung bình') rankBadge = '<span class="badge bg-warning">Trung bình</span>';
+                        if (item.academicPerformance === 'Giỏi') rankBadge = '<span class="badge bg-success">Giỏi</span>';
+                        else if (item.academicPerformance === 'Khá') rankBadge = '<span class="badge bg-info">Khá</span>';
+                        else if (item.academicPerformance === 'Trung bình') rankBadge = '<span class="badge bg-warning">Trung bình</span>';
                         else rankBadge = '<span class="badge bg-danger">Yếu</span>';
+
+                        // Xử lý hiển thị giới tính
+                        var genderText = item.sex ? "Nam" : "Nữ";
 
                         var row = `<tr>
                             <td>${item.studentNo}</td>
                             <td>${item.fullName}</td>
-                            <td>${item.genderName}</td>
-                            <td>${item.className}</td>
-                            <td<strong>${item.gpa}</strong></td>
+                            <td>${genderText}</td>
+                            <td>${item.className || 'Chưa xếp lớp'}</td>
+                            <td><strong class="text-primary">${item.averageScore.toFixed(2)}</strong></td>
                             <td>${rankBadge}</td>
                             <td>
                                 <button class="btn btn-warning btn-sm btn-edit" data-id="${item.studentId}">Sửa</button>
@@ -226,7 +233,37 @@ $(document).ready(function () {
                         tbody.append(row);
 
                     });
+                } else {
+                    alert("Lỗi: " + response.message);
                 }
+            },
+            error: function (xhr, status, error) {
+                console.error("Lỗi search: " + error);
+            }
+        });
+    }
+
+    // Hàm load ds class lên dropdown
+    function loadClassDropdown() {
+        $.ajax({
+            url: '/Student/GetClassesApi',
+            type: 'GET',
+            dataType: 'json',
+            success: function (response) {
+                if (response.success) {
+                    var ddlClass = $('#searchClassId');
+
+                    // Reset lại dropdown chỉ giữ dòng mặc định
+                    ddlClass.html('<option value="">-- Tất cả các lớp --</option>');
+
+                    // Duyệt qua danh sách Lớp từ API trả về và nhét từng option vào
+                    $.each(response.data, function (index, item) {
+                        ddlClass.append(`<option value="${item.id}">${item.classNo}</option>`)
+                    });
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Lỗi tài danh sách lớp: ", error);
             }
         });
     }

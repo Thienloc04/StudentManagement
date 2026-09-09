@@ -2,8 +2,8 @@
 {
     public class StudentSearchFilterDto
     {
-        public string? StudentName { get; set; }
+        public string? Keyword { get; set; }
         public int? ClassId { get; set; }
-        public string? AcademicRank { get; set; } // "Yếu", "Trung bình", "Khá", "Giỏi"
+        public string? AcademicPerformance { get; set; } // "Yếu", "Trung bình", "Khá", "Giỏi"
     }
 }

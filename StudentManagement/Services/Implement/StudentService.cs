@@ -1,4 +1,4 @@
-﻿using StudentManagement.Models.Entities;
+using StudentManagement.Models.Entities;
 using StudentManagement.Models.ViewModels;
 using StudentManagement.Repositories.Interface;
 using StudentManagement.Services.Interface;
@@ -80,9 +80,9 @@ namespace StudentManagement.Services.Implement
             return result;
         }
 
-        public async Task<List<StudentSearchResultDto>> SearchStudentsAsync(StudentSearchFilterDto filter)
+        public async Task<IEnumerable<StudentSearchResultDto>> SearchStudentsAsync(StudentSearchFilterDto filter)
         {
-            return await _studentRepository.SearchStudentsAsync(filter);
+            return await _studentRepository.SearchStudentsWithSpAsync(filter);
         }
 
         public async Task UpdateStudentAsync(StudentUpdateViewModel model)

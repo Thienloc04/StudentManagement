@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using StudentManagement.Models.ViewModels;
 using StudentManagement.Services.Interface;
 using System.Threading.Tasks;
@@ -8,9 +8,11 @@ namespace StudentManagement.Controllers
     public class StudentController : Controller
     {
         private readonly IStudentService _studentService;
-        public StudentController(IStudentService studentService)
+        private readonly IClassService _classService;
+        public StudentController(IStudentService studentService, IClassService classService)
         {
             _studentService = studentService;
+            _classService = classService;
         }
 
         // 1. Hàm này trả về giao diện HTML (Khi người dùng gõ URL trên trình duyệt)
@@ -90,13 +92,14 @@ namespace StudentManagement.Controllers
             }
         }
 
+        // API search student theo keyword/học lực/lớp
         [HttpGet]
-        public async Task<IActionResult> SearchApi([FromQuery] StudentSearchFilterDto filter)
+        public async Task<IActionResult> SearchStudentsApi([FromQuery] StudentSearchFilterDto filter)
         {
             try
             {
-                var data = await _studentService.SearchStudentsAsync(filter);
-                return Json(new { success = true, data = data });
+                var result = await _studentService.SearchStudentsAsync(filter);
+                return Json(new { success = true, data = result });
             }
             catch (Exception ex)
             {
@@ -104,5 +107,19 @@ namespace StudentManagement.Controllers
             }
         }
 
+        // API lấy danh sách lớp học để đổ vào dropdown tìm kiếm
+        [HttpGet]
+        public async Task<IActionResult> GetClassesApi()
+        {
+            try
+            {
+                var result = await _classService.GetClassesListAsync();
+                return Json(new { success = true, data = result });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, data = ex.Message });
+            }
+        }
     }
 }
