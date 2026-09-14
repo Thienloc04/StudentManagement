@@ -129,8 +129,14 @@
                             <td>${item.className}</td>
                             <td>${regDate}</td>
                             <td>
+                                <button class="btn btn-primary btn-sm btn-manage-grades" data-id="${item.enrollmentId}"
+                                data-subject="${item.subjectName}"
+                                    <i class="fas fa-edit"></i> Nhập điểm
+                                </button>
+                            </td>
+                            <td>
                                 <button class="btn btn-danger btn-sm btn-cancel-enroll" data-id="${item.enrollmentId}">
-                                    <i class="fas fa-trash"></i>
+                                    <i class="fas fa-trash"></i>  Hủy đăng ký
                                 </button>
                             </td>
                         </tr>`;
@@ -142,5 +148,96 @@
         });
     }
 
+    $(document).on('click', '.btn-manage-grades', function () {
+        var enrollmentId = $(this).data('id');
+        var subjectName = $(this).data('subject');
 
+        $('#modalSubjectTitle').text('Môn học: ' + subjectName);
+        loadGradesForEnrollment(enrollmentId);
+
+        var modal = new bootstrap.Modal(document.getElementById('gradeModal'));
+        modal.show();
+    });
+
+    function loadGradesForEnrollment(enrollmentId) {
+        $.ajax({
+            url: '/Grade/GetGradeApi?enrollmentid=' + enrollmentId,
+            type: 'GET',
+            success: function (response) {
+                if (response.success) {
+                    var tbody = $('#gradeTableBody');
+                    tbody.empty();
+
+                    var totalWeightScore = 0;
+                    var totalWeight = 0;
+
+                    $.each(response.data, function (i, item) {
+                        var scoreVal = item.score > 0 ? item.score : '';
+
+                        totalWeightScore += item.score * item.weight;
+                        totalWeight += item.weight;
+
+                        var row = `<tr>
+                            <td class="fw-bold">${item.gradeTypeName}</td>
+                            <td><span class="badge bg-secondary">${item.weight * 100}%</span></td>
+                            <td>
+                                <input type="number" step="0.1" min="0" max="10"
+                                    class="form-control input-score"
+                                    id="score_input_${item.gradeTypeId}"
+                                    value="${scoreVal}" placeholder="Chưa nhập" />
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-success btn-sm btn-save-single-grade"
+                                    data-enrollmentid="${item.enrollmentId}"
+                                    data-gradetypeid="${item.gradeTypeId}">
+                                    <i class="fas fa-save"></i> Lưu
+                                </button>
+                            </td>
+                        </tr>`;
+                        tbody.append(row);
+                    });
+
+                    $('#lblCalculatedGpa').text(totalWeightScore.toFixed(2));
+                } else {
+                    alert(response.message);
+                }
+            }
+        });
+    }
+
+    // Bắt sự kiện bấm nút "Lưu" cho từng cột điểm
+    $(document).on('click', '.btn-save-single-grade', function () {
+        var enrollmentId = $(this).data('enrollmentid');
+        var gradeTypeId = $(this).data('gradetypeid');
+        var scoreInput = $('#score_input_' + gradeTypeId).val();
+        if (scoreInput === '' || isNaN(scoreInput)) {
+            alert("Vui lòng nhập điểm số hợp lệ từ 0 đến 10!");
+            return;
+        }
+        var score = parseFloat(scoreInput);
+        if (score < 0 || score > 10) {
+            alert("Điểm số phải nằm trong khoảng từ 0.0 đến 10.0!");
+            return;
+        }
+        var requestData = {
+            enrollmentId: enrollmentId,
+            gradeTypeId: gradeTypeId,
+            score: score
+        };
+        $.ajax({
+            url: '/Grade/SaveGrade',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(requestData),
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    // Reload lại bảng điểm trong modal để cập nhật ĐTB mới
+                    loadGradesForEnrollment(enrollmentId);
+                } else {
+                    alert("Lỗi: " + response.message);
+                }
+            }
+        });
+    });
 });

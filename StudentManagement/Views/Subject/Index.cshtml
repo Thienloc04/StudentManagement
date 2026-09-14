@@ -1,0 +1,143 @@
+﻿@{
+    ViewData["Title"] = "Quản lý Môn học";
+}
+
+<div class="container-fluid mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary"><i class="fas fa-book"></i> QUẢN LÝ DANH MỤC MÔN HỌC</h2>
+        <button id="btnCreateSubject" class="btn btn-success">
+            <i class="fas fa-plus"></i> Thêm môn học mới
+        </button>
+    </div>
+
+    <!-- BẢNG DANH SÁCH MÔN HỌC -->
+    <div class="card shadow border-0">
+        <div class="card-header bg-primary text-white font-weight-bold">
+            <i class="fas fa-list"></i> Danh Sách Môn Học
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-hover table-bordered align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width: 80px;" class="text-center">STT</th>
+                        <th>Tên Môn Học</th>
+                        <th style="width: 150px;" class="text-center">Số Tín Chỉ</th>
+                        <th style="width: 180px;" class="text-center">Trạng Thái</th>
+                        <th style="width: 190px;" class="text-center">Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody id="subjectTableBody">
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">Đang tải dữ liệu môn học...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL THÊM / SỬA MÔN HỌC -->
+<div class="modal fade" id="subjectModal" tabindex="-1" aria-labelledby="subjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="subjectModalLabel"><i class="fas fa-edit"></i> THÔNG TIN MÔN HỌC</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formSubject">
+                    <input type="hidden" id="txtSubjectId" value="0" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên Môn Học <span class="text-danger">*</span></label>
+                        <input type="text" id="txtSubjectName" class="form-control" placeholder="Nhập tên môn học..." required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Số Tín Chỉ / Thời Lượng <span class="text-danger">*</span></label>
+                        <input type="number" id="txtSubjectVolume" class="form-control" min="1" max="10" placeholder="Ví dụ: 3" required />
+                    </div>
+
+                    <div class="mb-3" id="divStatusGroup" style="display: none;">
+                        <label class="form-label fw-bold">Trạng Thái</label>
+                        <select id="ddlSubjectStatus" class="form-select">
+                            <option value="1">Đang giảng dạy</option>
+                            <option value="0">Tạm ngưng</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" id="btnSaveSubject" class="btn btn-primary"><i class="fas fa-save"></i> Lưu dữ liệu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL QUẢN LÝ LỚP HỌC PHẦN CỦA MÔN HỌC -->
+<div class="modal fade" id="subjectClassModal" tabindex="-1" aria-labelledby="subjectClassModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="subjectClassModalLabel"><i class="fas fa-layer-group"></i> DANH SÁCH LỚP HỌC PHẦN</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="txtCurrentSubjectId" value="0" />
+
+                <!-- Form Mở Lớp Học Phần Mới -->
+                <div class="card mb-4 bg-light">
+                    <div class="card-header font-weight-bold fw-bold text-primary">
+                        <i class="fas fa-plus-circle"></i> Mở Lớp Học Phần Mới
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-md-5">
+                                <label class="form-label fw-bold">Chọn Lớp Sinh Hoạt</label>
+                                <select id="ddlClassSelect" class="form-select">
+                                    <option value="">-- Chọn lớp --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label fw-bold">Chọn Giảng Viên Giảng Dạy</label>
+                                <select id="ddlTeacherSelect" class="form-select">
+                                    <option value="">-- Chọn giảng viên --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 align-self-end">
+                                <button id="btnOpenSubjectClass" class="btn btn-success w-100"><i class="fas fa-check"></i> Mở Lớp</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bảng Danh Sách Lớp Học Phần Đã Mở -->
+                <h6 class="fw-bold text-secondary"><i class="fas fa-list"></i> Các Lớp Học Phần Hiện Có:</h6>
+                <table class="table table-bordered align-middle">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>STT</th>
+                            <th>Lớp Sinh Hoạt</th>
+                            <th>Giảng Viên Giảng Dạy</th>
+                            <th class="text-center" style="width: 100px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subjectClassTableBody">
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Đang tải dữ liệu lớp học phần...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="~/js/subject.js"></script>
+}

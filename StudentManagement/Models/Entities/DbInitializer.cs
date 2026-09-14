@@ -1,4 +1,5 @@
-﻿using StudentManagement.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using StudentManagement.Models;
 using StudentManagement.Models.Entities;
 
 namespace StudentManagement.Data
@@ -156,6 +157,81 @@ namespace StudentManagement.Data
                 await context.Grades.AddRangeAsync(grades);
                 await context.SaveChangesAsync();
             }
+
+            // Tự động tạo hoặc cập nhật Stored Procedure sp_SearchStudents khi app chạy
+            await context.Database.ExecuteSqlRawAsync(@"
+CREATE OR ALTER PROCEDURE sp_SearchStudents
+    @Keyword NVARCHAR(100) = NULL,
+    @ClassId INT = NULL,
+    @AcademicPerformance NVARCHAR(50) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    WITH StudentGPA AS (
+        SELECT 
+            s.Id AS StudentId,
+            s.StudentNo,
+            p.FullName,
+            p.Sex,
+            c.ClassNo AS ClassName,
+            c.Id AS ClassId,
+            ISNULL(
+                ROUND(
+                    SUM(g.Score * gt.Weight) / NULLIF(SUM(gt.Weight), 0), 2
+                ), 0
+            ) AS AverageScore
+        FROM Students s
+        INNER JOIN Persons p ON s.Id = p.Id
+        LEFT JOIN Student_Classes sc ON s.Id = sc.StudentId
+        LEFT JOIN Classes c ON sc.ClassId = c.Id
+        LEFT JOIN Enrollments e ON s.Id = e.StudentId
+        LEFT JOIN Grades g ON e.Id = g.EnrollmentId
+        LEFT JOIN Grade_Types gt ON g.GradeTypeId = gt.Id
+        WHERE s.Status = 1
+        GROUP BY s.Id, s.StudentNo, p.FullName, p.Sex, c.ClassNo, c.Id
+    ),
+    StudentRanked AS (
+        SELECT 
+            StudentId,
+            StudentNo,
+            FullName,
+            Sex,
+            ClassName,
+            ClassId,
+            AverageScore,
+            CASE 
+                WHEN AverageScore >= 8.0 THEN N'GIOI'
+                WHEN AverageScore >= 6.5 THEN N'KHA'
+                WHEN AverageScore >= 5.0 THEN N'TB'
+                ELSE N'YEU'
+            END AS AcademicPerformance
+        FROM StudentGPA
+    )
+    SELECT TOP (
+        CASE 
+            WHEN (@Keyword IS NULL OR @Keyword = '') 
+                 AND @ClassId IS NULL 
+                 AND (@AcademicPerformance IS NULL OR @AcademicPerformance = '') 
+            THEN 10 
+            ELSE 1000000 
+        END
+    )
+        StudentId,
+        StudentNo,
+        FullName,
+        Sex,
+        ISNULL(ClassName, N'Chưa phân lớp') AS ClassName,
+        AverageScore,
+        AcademicPerformance
+    FROM StudentRanked
+    WHERE (@Keyword IS NULL OR @Keyword = '' OR StudentNo LIKE '%' + @Keyword + '%' OR FullName LIKE '%' + @Keyword + '%')
+      AND (@ClassId IS NULL OR ClassId = @ClassId)
+      AND (@AcademicPerformance IS NULL OR @AcademicPerformance = '' OR AcademicPerformance = @AcademicPerformance)
+    ORDER BY AverageScore DESC, StudentNo ASC;
+END;
+");
+
         }
     }
 }

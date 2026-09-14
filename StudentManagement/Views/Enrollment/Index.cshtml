@@ -50,7 +50,7 @@
                         <th>Giảng Viên Giảng Dạy</th>
                         <th>Lớp Hành Chính</th>
                         <th>Ngày Đăng Ký</th>
-                        <th>Thao Tác</th>
+                        <th colspan="2" class="text-center">Thao Tác</th>
                     </tr>
                 </thead>
                 <tbody id="enrollmentTableBody">
@@ -63,6 +63,49 @@
     </div>
 
 </div>
+
+<!-- MODAL NHẬP / XEM ĐIỂM SỐ -->
+<div class="modal fade" id="gradeModal" tabindex="-1" aria-labelledby="gradeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="gradeModalLabel"><i class="fas fa-marker"></i> QUẢN LÝ ĐIỂM SỐ MÔN HỌC</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Thông tin môn học -->
+                <div class="alert alert-info py-2">
+                    <strong id="modalSubjectTitle">Môn học: ...</strong>
+                </div>
+
+                <!-- Bảng danh sách các loại điểm -->
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Loại điểm</th>
+                            <th style="width: 120px;">Hệ số</th>
+                            <th style="width: 180px;">Điểm số (0 - 10)</th>
+                            <th style="width: 120px;" class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gradeTableBody">
+                        <!-- AJAX sẽ đổ dữ liệu vào đây -->
+                    </tbody>
+                </table>
+
+                <!-- Tổng kết điểm môn -->
+                <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded border">
+                    <span class="fw-bold">ĐTB Môn học (Dự tính):</span>
+                    <span id="lblCalculatedGpa" class="fs-4 fw-bold text-success">0.00</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @section Scripts{
     <script src="~/js/enrollment.js"></script>
