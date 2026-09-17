@@ -279,7 +279,25 @@ $(document).ready(function () {
         $('#searchClassId').val('');
         $('#searchRank').val('');
         searchStudents(); // Tự động load lại mặc định (Top 10 GPA cao nhất)
-    })
+    });
+
+    // Xử lý Xuất file (PDF / Excel) áp dụng OCP Strategy Pattern
+    $('#btnExportPdf').click(function () {
+        triggerExport('PDF');
+    });
+
+    $('#btnExportExcel').click(function () {
+        triggerExport('EXCEL');
+    });
+
+    function triggerExport(format) {
+        var keyword = $('#searchName').val().trim();
+        var classId = $('#searchClassId').val();
+        var rank = $('#searchRank').val();
+
+        var downloadUrl = `/Student/ExportStudents?format=${format}&Keyword=${encodeURIComponent(keyword)}&ClassId=${classId}&AcademicPerformance=${encodeURIComponent(rank)}`;
+        window.location.href = downloadUrl;
+    }
 
 });
 

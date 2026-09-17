@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using StudentManagement.Models.ViewModels;
+using StudentManagement.Services.Exporters;
 using StudentManagement.Services.Interface;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace StudentManagement.Controllers
@@ -9,10 +13,16 @@ namespace StudentManagement.Controllers
     {
         private readonly IStudentService _studentService;
         private readonly IClassService _classService;
-        public StudentController(IStudentService studentService, IClassService classService)
+        private readonly IEnumerable<IStudentExporter> _exporters;
+
+        public StudentController(
+            IStudentService studentService, 
+            IClassService classService,
+            IEnumerable<IStudentExporter> exporters)
         {
             _studentService = studentService;
             _classService = classService;
+            _exporters = exporters;
         }
 
         // 1. Hàm này trả về giao diện HTML (Khi người dùng gõ URL trên trình duyệt)
@@ -121,5 +131,46 @@ namespace StudentManagement.Controllers
                 return Json(new { success = false, data = ex.Message });
             }
         }
+
+        // Action Xuất Báo Cáo File (PDF / EXCEL) áp dụng Strategy Pattern (OCP)
+        [HttpGet]
+        public async Task<IActionResult> ExportStudents([FromQuery] string format, [FromQuery] StudentSearchFilterDto filter)
+        {
+            if (string.IsNullOrEmpty(format))
+            {
+                format = "PDF";
+            }
+
+            // 1. Lấy dữ liệu danh sách học sinh theo bộ lọc
+            var students = await _studentService.SearchStudentsAsync(filter);
+
+            // 2. TÌM EXPORTER PHÙ HỢP: Tự động tìm Strategy matching với 'format' trong IEnumerable<IStudentExporter>
+            var exporter = _exporters.FirstOrDefault(e => e.ExportFormat.Equals(format, StringComparison.OrdinalIgnoreCase));
+
+            if (exporter == null)
+            {
+                return BadRequest($"Định dạng xuất file '{format}' không được hỗ trợ.");
+            }
+
+            // 3. Chuẩn bị Tiêu đề báo cáo
+            string title = "BÁO CÁO THỐNG KÊ DANH SÁCH HỌC SINH";
+            if (filter.ClassId.HasValue && filter.ClassId.Value > 0)
+            {
+                var classList = await _classService.GetClassesListAsync();
+                var currentClass = classList.FirstOrDefault(c => c.Id == filter.ClassId.Value);
+                if (currentClass != null)
+                {
+                    title = $"BÁO CÁO THỐNG KÊ HỌC SINH LỚP {currentClass.ClassNo}";
+                }
+            }
+
+            // 4. Tiến hành xuất file mảng byte
+            byte[] fileBytes = exporter.Export(students, title);
+            string fileName = $"DanhSachHocSinh_{DateTime.Now:yyyyMMdd_HHmmss}.{exporter.FileExtension}";
+
+            // Trả file về cho trình duyệt tự động tải xuống
+            return File(fileBytes, exporter.ContentType, fileName);
+        }
     }
 }
+

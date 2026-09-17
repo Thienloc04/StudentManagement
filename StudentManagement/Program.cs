@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using StudentManagement.Data;
 using StudentManagement.Repositories.Implement;
 using StudentManagement.Repositories.Interface;
+using StudentManagement.Services.Exporters;
+using StudentManagement.Services.Exporters.Implement;
 using StudentManagement.Services.Implement;
 using StudentManagement.Services.Interface;
 
@@ -23,6 +25,11 @@ builder.Services.AddScoped<IGradeRepository, GradeRepository>();
 builder.Services.AddScoped<IGradeService, GradeService>();
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<ISubjectService, SubjectService>();
+
+// Đăng ký các chiến lược xuất file (Strategy Pattern - OCP)
+builder.Services.AddScoped<IStudentExporter, PdfStudentExporter>();
+builder.Services.AddScoped<IStudentExporter, ExcelStudentExporter>();
+
 
 
 var app = builder.Build();
